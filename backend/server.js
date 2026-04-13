@@ -15,12 +15,22 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:3000`);
   req.query = Object.fromEntries(url.searchParams);
   
+  // Create Vercel-compatible response wrapper
+  const vercelRes = {
+    status: (code) => ({
+      json: (data) => {
+        res.writeHead(code, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(data));
+      }
+    })
+  };
+  
   let body = '';
   req.on('data', chunk => body += chunk);
   req.on('end', async () => {
     try {
       req.body = body ? JSON.parse(body) : {};
-      await handler(req, res);
+      await handler(req, vercelRes);
     } catch (e) {
       res.writeHead(500);
       res.end(JSON.stringify({ error: e.message }));

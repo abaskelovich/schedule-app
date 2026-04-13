@@ -7,6 +7,10 @@ android {
     namespace = "com.schedule.app"
     compileSdk = 34
 
+    buildFeatures {
+        viewBinding = true
+    }
+
     defaultConfig {
         applicationId = "com.schedule.app"
         minSdk = 24
