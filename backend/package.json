@@ -1,0 +1,12 @@
+{
+  "name": "schedule-backend",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "vercel": "vercel"
+  },
+  "dependencies": {
+    "vercel": "^33.0.0"
+  }
+}
