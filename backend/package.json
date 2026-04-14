@@ -7,6 +7,7 @@
     "vercel": "vercel"
   },
   "dependencies": {
+    "dotenv": "^17.4.2",
     "vercel": "^33.0.0"
   }
 }

@@ -1,5 +1,7 @@
+require('dotenv').config();
 const http = require('http');
-const handler = require('./api/schedules');
+const schedulesHandler = require('./api/schedules');
+const parseHandler = require('./api/parse');
 
 const server = http.createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -17,12 +19,15 @@ const server = http.createServer(async (req, res) => {
   
   // Create Vercel-compatible response wrapper
   const vercelRes = {
-    status: (code) => ({
-      json: (data) => {
-        res.writeHead(code, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(data));
-      }
-    })
+    status: (code) => {
+      res.statusCode = code;
+      return {
+        json: (data) => {
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify(data));
+        }
+      };
+    }
   };
   
   let body = '';
@@ -30,9 +35,16 @@ const server = http.createServer(async (req, res) => {
   req.on('end', async () => {
     try {
       req.body = body ? JSON.parse(body) : {};
-      await handler(req, vercelRes);
+      console.log(`[${new Date().toISOString()}] ${req.method} ${url.pathname}`);
+      
+      if (url.pathname === '/api/parse-intent') {
+        await parseHandler(req, vercelRes);
+      } else {
+        await schedulesHandler(req, vercelRes);
+      }
     } catch (e) {
-      res.writeHead(500);
+      console.error('[SERVER ERROR]:', e);
+      res.statusCode = 500;
       res.end(JSON.stringify({ error: e.message }));
     }
   });
